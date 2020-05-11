@@ -4,11 +4,8 @@
 
 
 /**
-
  *  This example program has been updated to use the RPC implementation in the new mbed libraries.
-
  *  This example demonstrates using RPC over serial
-
 **/
 
 RpcDigitalOut myled1(LED1,"myled1");
@@ -19,9 +16,9 @@ RpcDigitalOut myled3(LED3,"myled3");
 
 Serial pc(USBTX, USBRX);
 
-void LEDControl(Arguments *in, Reply *out);
+void ll(Arguments *in, Reply *out);
 
-RPCFunction rpcLED(&LEDControl, "LEDControl");
+RPCFunction rpcLED(&ll, "ll");
 
 double x, y;
 
@@ -55,8 +52,6 @@ int main() {
             buf[i] = pc.putc(recv);
 
         }
-
-
         //Call the static call method on the RPC class
 
         RPC::call(buf, outbuf);
@@ -70,7 +65,7 @@ int main() {
 
 // Make sure the method takes in Arguments and Reply objects.
 
-void LEDControl (Arguments *in, Reply *out)   {
+void ll (Arguments *in, Reply *out)   {
 
     bool success = true;
 
@@ -89,8 +84,48 @@ void LEDControl (Arguments *in, Reply *out)   {
     char strings[20];
 
     int led = x;
+    int on=y;
 
-    int on = y;
+    int k=0;
+    while(1){
+    led=1;
+    on=1;
+
+
+    if(k>=7){
+        k=3;
+    }
+    if(k==0){
+        led=1;
+        on=1;
+    }
+    else if(k==1){
+        led=2;
+        on=1;
+    }
+    else if(k==2){
+        led=3;
+        on=1;
+    }
+    else if(k==3){
+        led=1;
+        on=0;
+        wait(0.5);
+    }
+    else if(k==4){
+        led=1;
+        on=1;
+        wait(0.5);
+    }
+    else if(k==5){
+        led=3;
+        on=0;
+        wait(0.5);
+    }else{
+        led=3;
+        on=1;
+        wait(0.5);
+    }
 
     int n = sprintf(strings, "/myled%d/write %d", led, on);
 
@@ -107,5 +142,7 @@ void LEDControl (Arguments *in, Reply *out)   {
         out->putData("Failed to execute LED control.");
 
     }
-
+    k=k+1;
+    }
+    
 }
